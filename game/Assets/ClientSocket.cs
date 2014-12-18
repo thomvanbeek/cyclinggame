@@ -2,7 +2,9 @@
 using System.Collections;
 using System;
 using System.IO;
-using System.Net.Sockets; 
+using System.Net.Sockets;
+using System.Net;
+
 
 public class ClientSocket : MonoBehaviour {
 	
@@ -11,14 +13,14 @@ public class ClientSocket : MonoBehaviour {
 	public NetworkStream theStream;
 	StreamWriter theWriter;
 	StreamReader theReader;
-	public String Host = "INSERT the public IP of router or Local IP of Arduino";
-	public Int32 Port = 5001; 
+	public String host = "127.0.0.1";
+	public Int32 port = 13000; 
 	public String lineRead;
 	int angle = -30;
-	
+	TcpListener tcp_listener;
 	
 	void Start() {
-		setupSocket (); 
+
 		StartCoroutine(Run());
 
 	// setup the server connection when the program starts
@@ -26,9 +28,13 @@ public class ClientSocket : MonoBehaviour {
 
 	IEnumerator Run()
 	{
-
+		setupSocket ();
 		while (true) {
-			lineRead = readSocket();
+			String line = readSocket();
+			if (line != null)
+				lineRead = line;
+			writeSocket ("<root><torque>10000</torque></root>");
+			//Debug.Log (lineRead);
 			yield return new WaitForSeconds(0.1f);
 		} 
 
@@ -44,12 +50,17 @@ public class ClientSocket : MonoBehaviour {
 	}
 	
 	public void setupSocket() {                            // Socket setup here
-		try {                
-			mySocket = new TcpClient(Host, Port);
+		try {
+			IPAddress ip_addy = IPAddress.Parse(host);
+			tcp_listener = new TcpListener(ip_addy, port);
+			this.tcp_listener.Start();
+			mySocket = this.tcp_listener.AcceptTcpClient();
+			//mySocket = new TcpClient(Host, Port);
 			theStream = mySocket.GetStream();
 			theWriter = new StreamWriter(theStream);
 			theReader = new StreamReader(theStream);
 			socketReady = true;
+			Debug.Log("Connection started");
 		}
 		catch (Exception e) {
 			Debug.Log("Socket error:" + e);                // catch any exceptions
@@ -57,23 +68,35 @@ public class ClientSocket : MonoBehaviour {
 	}
 	
 	public void writeSocket(string theLine) {            // function to write data out
+		try {
+
 		if (!socketReady)
 			return;
 		String tmpString = theLine;
-		theWriter.Write(tmpString);
+		theWriter.WriteLine(tmpString);
 		theWriter.Flush();
-		
-		
+	    Debug.Log ("Sent: " + tmpString);
+		}catch (Exception e) {
+			Debug.Log("Write error:" + e);                // catch any exceptions
+		}
+
+
 	}
 	
 	public String readSocket() {// function to read data in
 		if (!socketReady) {
 			angle++;
-						return "<data><angle>" + angle + "</angle><speed>3</speed><brake>0</brake></data>";
+						return "<root><angle>" + angle + "</angle><speed>3</speed><brake>0</brake></root>";
 				}
-		if (theStream.DataAvailable)
-			return theReader.ReadLine();
-		return "NoData";
+		if (theStream.DataAvailable) {
+			String lineReceived = theReader.ReadLine ();
+			Debug.Log ("Received: " + lineReceived);
+			return lineReceived;		
+		}
+						
+				else
+						return null;
+
 	}
 	
 	public void closeSocket() {                            // function to close the socket

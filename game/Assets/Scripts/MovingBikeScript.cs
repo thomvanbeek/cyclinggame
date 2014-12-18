@@ -51,22 +51,24 @@ public class MovingBikeScript : MonoBehaviour {
 		//testSphereRear.position = frontWheel.transform.position + vectorBike;
 
 		//frontWheel.rotation = Quaternion.LookRotation(vector);
-		Debug.Log (angle);
+		//Debug.Log (angle);
 
 		float offsetAngle = frame.rotation.eulerAngles.y;
 		frontWheel.transform.eulerAngles = new Vector3(0, offsetAngle +  angle, 0);
 
 
-		//rearWheel.AddRelativeTorque(50000000*speed,0,0);	
-		rearWheel.transform.Rotate(speed * 100,0,0);
+		rearWheel.AddRelativeTorque(50000000*speed,0,0);	
+		//rearWheel.transform.Rotate(speed * 100,0,0);
 	}
 
 
 	public void GetData()
 	{
+
+		ClientSocket Network = GameObject.Find("Network").GetComponent<ClientSocket>();        // Connect to game objects
 		XmlDocument xmlDoc = new XmlDocument(); // xmlDoc is the new xml document.
-		xmlDoc.LoadXml(GameAsset.text); // load the file.
-		XmlNodeList levelsList = xmlDoc.GetElementsByTagName("data"); // array of the level nodes.
+		xmlDoc.LoadXml(Network.lineRead); // load the file.
+		XmlNodeList levelsList = xmlDoc.GetElementsByTagName("root"); // array of the level nodes.
 		
 		foreach (XmlNode levelInfo in levelsList)
 		{
