@@ -3,6 +3,8 @@ using System.Collections;
 
 public class BikePhysicsScript : MonoBehaviour {
 
+	ClientSocket Network;
+
 	public GameObject centerOfMass;
 	public GameObject frontWheel;
 	public GameObject rearWheel;
@@ -22,6 +24,8 @@ public class BikePhysicsScript : MonoBehaviour {
 	void Start () {
 		forkRotation = 0;
 		speed = 0;
+
+		Network = GameObject.Find ("Network").GetComponent<ClientSocket> ();
 	}
 	
 	// Update is called once per frame
@@ -88,27 +92,30 @@ public class BikePhysicsScript : MonoBehaviour {
 	}
 
 	void UpdateRotation(float rot) {
-		if(rot != 0) {
-			if (rot > 0) {
-				if(forkRotation > 0) {
-					forkRotation += 1*rotationUnit;
-				} else {
-					forkRotation += 3*rotationUnit;
-				}
-			} else {
-				if(forkRotation < 0) {
-					forkRotation -= 1*rotationUnit;
-				} else {
-					forkRotation -= 3*rotationUnit;
-				}
-			}
-		}
+//		if(rot != 0) {
+//			if (rot > 0) {
+//				if(forkRotation > 0) {
+//					forkRotation += 1*rotationUnit;
+//				} else {
+//					forkRotation += 3*rotationUnit;
+//				}
+//			} else {
+//				if(forkRotation < 0) {
+//					forkRotation -= 1*rotationUnit;
+//				} else {
+//					forkRotation -= 3*rotationUnit;
+//				}
+//			}
+//		}
+
+		forkRotation = Network.getParsedAngle ();
 	}
 
 	void UpdateSpeed(float force) {
-		if(force != 0) {
-			speed += force*speedUnit;
-		}
+//		if(force != 0) {
+//			speed += force*speedUnit;
+//		}
+		speed = Network.getParsedSpeed ();
 	}
 
 	void LateUpdate () {

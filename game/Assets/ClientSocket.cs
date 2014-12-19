@@ -21,6 +21,22 @@ public class ClientSocket : MonoBehaviour {
 	float parsedAngle;
 	int parsedBrake;
 	TcpListener tcp_listener;
+
+	public float getParsedSpeed()
+	{
+		return parsedSpeed;
+	}
+
+	public float getParsedAngle()
+	{
+		return parsedAngle;
+	}
+
+	public float getParsedBrake()
+	{
+		return parsedBrake;
+	}
+	
 	
 	void Start() {
 
