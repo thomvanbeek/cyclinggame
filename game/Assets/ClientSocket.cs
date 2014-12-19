@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Net;
+using System.Xml;
 
 
 public class ClientSocket : MonoBehaviour {
@@ -16,7 +17,9 @@ public class ClientSocket : MonoBehaviour {
 	public String host = "127.0.0.1";
 	public Int32 port = 13000; 
 	public String lineRead;
-	int angle = -30;
+	float parsedSpeed;
+	float parsedAngle;
+	int parsedBrake;
 	TcpListener tcp_listener;
 	
 	void Start() {
@@ -34,6 +37,7 @@ public class ClientSocket : MonoBehaviour {
 			if (line != null)
 				lineRead = line;
 			writeSocket ("<root><torque>10000</torque></root>");
+			ParseXML();
 			//Debug.Log (lineRead);
 			yield return new WaitForSeconds(0.1f);
 		} 
@@ -85,8 +89,7 @@ public class ClientSocket : MonoBehaviour {
 	
 	public String readSocket() {// function to read data in
 		if (!socketReady) {
-			angle++;
-						return "<root><angle>" + angle + "</angle><speed>3</speed><brake>0</brake></root>";
+						return null;
 				}
 		if (theStream.DataAvailable) {
 			String lineReceived = theReader.ReadLine ();
@@ -111,6 +114,36 @@ public class ClientSocket : MonoBehaviour {
 	public void maintainConnection(){                    // function to maintain the connection (not sure why! but Im sure it will become a solution to a problem at somestage)
 		if(!theStream.CanRead) {
 			setupSocket();
+		}
+	}
+
+	public void ParseXML()
+	{
+		
+		XmlDocument xmlDoc = new XmlDocument(); // xmlDoc is the new xml document.
+		xmlDoc.LoadXml(lineRead); // load the file.
+		XmlNodeList levelsList = xmlDoc.GetElementsByTagName("root"); // array of the level nodes.
+		
+		foreach (XmlNode levelInfo in levelsList)
+		{
+			XmlNodeList levelcontent = levelInfo.ChildNodes;			
+			foreach (XmlNode levelsItens in levelcontent) // levels itens nodes.
+			{
+				if(levelsItens.Name == "speed")
+				{
+					parsedSpeed = float.Parse(levelsItens.InnerText);
+				}
+				
+				if(levelsItens.Name == "angle")
+				{
+					parsedAngle = float.Parse(levelsItens.InnerText);
+				}
+				
+				if(levelsItens.Name == "brake")
+				{
+					parsedBrake =  int.Parse(levelsItens.InnerText);
+				}
+			}
 		}
 	}
 	
