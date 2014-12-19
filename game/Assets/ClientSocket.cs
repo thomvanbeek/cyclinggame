@@ -145,12 +145,12 @@ public class ClientSocket : MonoBehaviour {
 			XmlNodeList levelcontent = levelInfo.ChildNodes;			
 			foreach (XmlNode levelsItens in levelcontent) // levels itens nodes.
 			{
-				if(levelsItens.Name == "speed")
+				if(levelsItens.Name == "v")
 				{
 					parsedSpeed = float.Parse(levelsItens.InnerText);
 				}
 				
-				if(levelsItens.Name == "angle")
+				if(levelsItens.Name == "delta")
 				{
 					parsedAngle = float.Parse(levelsItens.InnerText);
 				}
