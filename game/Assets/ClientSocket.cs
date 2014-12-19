@@ -16,7 +16,7 @@ public class ClientSocket : MonoBehaviour {
 	StreamReader theReader;
 	public String host = "127.0.0.1";
 	public Int32 port = 13000; 
-	public String lineRead;
+	public String lineRead = "<root><v>5</v><delta>3</delta><brake>0</brake></root>";
 	float parsedSpeed;
 	float parsedAngle;
 	int parsedBrake;
@@ -52,10 +52,11 @@ public class ClientSocket : MonoBehaviour {
 			String line = readSocket();
 			if (line != null)
 				lineRead = line;
-			writeSocket ("<root><torque>10000</torque></root>");
+			//writeSocket ("<root><torque>0</torque></root>");
+			//Debug.Log(lineRead);
 			ParseXML();
 			//Debug.Log (lineRead);
-			yield return new WaitForSeconds(0.1f);
+			yield return new WaitForSeconds(0.01f);
 		} 
 
 	}
@@ -109,8 +110,9 @@ public class ClientSocket : MonoBehaviour {
 				}
 		if (theStream.DataAvailable) {
 			String lineReceived = theReader.ReadLine ();
-			Debug.Log ("Received: " + lineReceived);
-			return lineReceived;		
+			//Debug.Log ("Received: " + lineReceived);
+			return lineReceived;	
+			//return "<root><delta>-0.31</delta><v>5.00</v><cadence>80</cadence><brake>0</brake></root>";
 		}
 						
 				else
@@ -135,32 +137,36 @@ public class ClientSocket : MonoBehaviour {
 
 	public void ParseXML()
 	{
-		
-		XmlDocument xmlDoc = new XmlDocument(); // xmlDoc is the new xml document.
-		xmlDoc.LoadXml(lineRead); // load the file.
-		XmlNodeList levelsList = xmlDoc.GetElementsByTagName("root"); // array of the level nodes.
-		
-		foreach (XmlNode levelInfo in levelsList)
-		{
-			XmlNodeList levelcontent = levelInfo.ChildNodes;			
-			foreach (XmlNode levelsItens in levelcontent) // levels itens nodes.
+		try{
+			XmlDocument xmlDoc = new XmlDocument(); // xmlDoc is the new xml document.
+			Debug.Log (lineRead);
+			xmlDoc.LoadXml(lineRead); // load the file.
+			XmlNodeList levelsList = xmlDoc.GetElementsByTagName("root"); // array of the level nodes.
+			
+			foreach (XmlNode levelInfo in levelsList)
 			{
-				if(levelsItens.Name == "v")
+				XmlNodeList levelcontent = levelInfo.ChildNodes;			
+				foreach (XmlNode levelsItens in levelcontent) // levels itens nodes.
 				{
-					parsedSpeed = float.Parse(levelsItens.InnerText);
-				}
-				
-				if(levelsItens.Name == "delta")
-				{
-					parsedAngle = float.Parse(levelsItens.InnerText);
-				}
-				
-				if(levelsItens.Name == "brake")
-				{
-					parsedBrake =  int.Parse(levelsItens.InnerText);
+					if(levelsItens.Name == "v")
+					{
+						parsedSpeed = float.Parse(levelsItens.InnerText);
+					}
+					
+					if(levelsItens.Name == "delta")
+					{
+						parsedAngle = float.Parse(levelsItens.InnerText) * 360 / (2*(float)Math.PI);
+					}
+					
+					if(levelsItens.Name == "brake")
+					{
+						parsedBrake =  int.Parse(levelsItens.InnerText);
+					}
 				}
 			}
-		}
+		}catch(Exception e){
+						Debug.Log ("Write error:" + e);
+				}
 	}
 	
 	
