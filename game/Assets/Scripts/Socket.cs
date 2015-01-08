@@ -16,7 +16,7 @@ public class Socket : MonoBehaviour {
 	StreamReader theReader;
 	public String host = "127.0.0.1";
 	public Int32 port = 13000; 
-	public String lineRead = "<root><v>5</v><delta>3</delta><brake>1</brake></root>";
+	public String lineRead = "<root><v>0</v><delta>0</delta><brake>0</brake></root>";
 	float parsedSpeed;
 	float parsedAngle;
 	int parsedBrake;

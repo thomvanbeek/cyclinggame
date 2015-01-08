@@ -70,7 +70,7 @@ public class BikePhysicsScript : MonoBehaviour
 
 			if (speed < networkSpeed)
 				speed = speed + speedUnit;
-			else //if (speed > networkSpeed)
+			else if (speed > networkSpeed)
 				speed = speed - speedUnit;
 
 			if (Network.getParsedBrake() == 1) {
